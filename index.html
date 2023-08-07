@@ -48,14 +48,19 @@
             }
             #autocomplete-list {
                 position: absolute;
-                border: 1px solid #d4d4d4;
+                border: 1px solid #888; /* darker border color */
                 border-bottom: none;
                 border-top: none;
                 z-index: 99;
                 top: 100%;
                 left: 0;
                 right: 0;
-                text-align: left;
+                max-height: 200px; /* adjust as needed */
+                overflow-y: auto;
+                direction: rtl;
+                text-align: right;
+                background-color: #f9f9f9; /* light gray background */
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* shadow effect */
             }
             #autocomplete-list div {
                 padding: 10px;
