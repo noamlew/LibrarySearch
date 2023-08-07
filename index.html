@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <title>מנוע חיפוש ספרים בספריה הביתית</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 50px;
+                background-color: #f4f4f4;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+            }
+
+            .container {
+                text-align: center;
+            }
+
+            h1 {
+                color: #4285f4;
+                font-size: 2.5em;
+                margin-bottom: 10px;
+            }
+
+            input[type="text"] {
+                width: 60%;
+                padding: 15px;
+                font-size: 1em;
+                border: 1px solid #dfe1e5;
+                border-radius: 24px;
+                margin-bottom: 20px;
+                outline: none;
+            }
+
+            input[type="text"]:focus {
+                box-shadow: 0 0 0 3px #f8f9fa, 0 0 0 5px #dadce0;
+            }
+
+            ul {
+                color: #3c4043;
+                font-size: 1.2em;
+                margin-top: 20px;
+                list-style-type: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>מנוע חיפוש ספרים בספריה הביתית</h1>
+            <input
+                type="text"
+                id="book-title"
+                name="book-title"
+                list="book-titles"
+                placeholder="הכנס שם של ספר..."
+            />
+            <datalist id="book-titles"></datalist>
+            <ul id="result"></ul>
+        </div>
+
+        <script>
+            var libraryData = {
+                library: [
+                    { book: "תנך", shelf: "מדף 1" },
+                    { book: "תלמוד בבלי", shelf: "מדף 1" },
+                    { book: "משנה", shelf: "מדף 1" },
+                    { book: "תוספתא", shelf: "מדף 1" },
+                    { book: "מקראות גדולות", shelf: "מדף 1" },
+                    // more books for shelf 1...
+
+                    { book: "שולחן ערוך", shelf: "מדף 2" },
+                    { book: "רמבם", shelf: "מדף 2" },
+                    { book: "מהרשא", shelf: "מדף 2" },
+                    { book: "מהרל", shelf: "מדף 2" },
+                    // more books for shelf 2...
+
+                    { book: "זוהר", shelf: "מדף 3" },
+                    { book: "עץ חיים", shelf: "מדף 3" },
+                    { book: "ברית מנוחה", shelf: "מדף 3" },
+                    // more books for shelf 3...
+
+                    { book: "מדרש רבה", shelf: "מדף 4" },
+                    { book: "פרקי אבות", shelf: "מדף 4" },
+                    { book: "אור החיים", shelf: "מדף 4" },
+                    // more books for shelf 4...
+
+                    { book: "משנה תורה", shelf: "מדף 5" },
+                    { book: "תלמוד ירושלמי", shelf: "מדף 5" },
+                    { book: "אבן עזרא", shelf: "מדף 5" },
+                    // more books for shelf 5...
+                ],
+            };
+
+            function searchForBook(title) {
+                var result = document.getElementById("result");
+                // מחיקת תוצאות קודמות
+                result.innerHTML = "";
+                var found = false;
+                for (var i = 0; i < libraryData.library.length; i++) {
+                    var book = libraryData.library[i];
+                    if (book.book.toLowerCase() === title.toLowerCase()) {
+                        found = true;
+                        var listItem = document.createElement("li");
+                        listItem.textContent =
+                            "הספר '" +
+                            title +
+                            "' נמצא במדף מספר " +
+                            book.shelf +
+                            ".";
+                        result.appendChild(listItem);
+                    }
+                }
+                if (!found) {
+                    var listItem = document.createElement("li");
+                    listItem.textContent =
+                        "הספר '" + title + "' לא נמצא בספריה.";
+                    result.appendChild(listItem);
+                }
+            }
+
+            function handleInput(event) {
+                var title = event.target.value;
+                searchForBook(title);
+            }
+
+            function populateDatalist() {
+                var datalist = document.getElementById("book-titles");
+                for (var i = 0; i < libraryData.library.length; i++) {
+                    var book = libraryData.library[i];
+                    var option = document.createElement("option");
+                    option.value = book.book;
+                    datalist.appendChild(option);
+                }
+            }
+
+            document
+                .getElementById("book-title")
+                .addEventListener("input", handleInput);
+            window.addEventListener("load", populateDatalist);
+        </script>
+    </body>
+</html>
