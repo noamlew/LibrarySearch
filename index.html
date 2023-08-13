@@ -2,190 +2,395 @@
 <html lang="he" dir="rtl">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>מנוע חיפוש ספרים</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="icon" href="https://icons.iconarchive.com/icons/ampeross/qetto-2/256/search-icon.png" type="image/x-icon" />
+        <title>מנוע חיפוש לספריה</title>
         <style>
             body {
-                font-family: "Arial", sans-serif;
-                background-color: #f5f5f5;
+                font-family: "Heebo", sans-serif;
+                background-color: #f4f6f9;
                 margin: 0;
-                padding: 0;
+                padding: 20px;
                 display: flex;
-                justify-content: center;
+                flex-direction: column;
                 align-items: center;
-                height: 100vh;
             }
-            .container {
-                text-align: center;
-                background-color: white;
+
+            #container {
+                width: 90%;
+                max-width: 650px;
+                background-color: #ffffff;
                 padding: 30px;
-                border-radius: 5px;
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-                width: 80%;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             }
-            input[type="text"] {
+
+            h2 {
+                color: #333;
+                font-weight: 700;
+                border-bottom: 2px solid #e5e5e5;
+                padding-bottom: 10px;
+                margin-bottom: 25px;
+            }
+
+            input[type="text"],
+            select {
                 padding: 10px;
-                width: 50%;
-                margin-bottom: 20px;
+                border: 2px solid #e5e5e5;
                 border-radius: 5px;
-                border: 1px solid #bdbdbd;
+                width: 100%;
+                margin-bottom: 15px;
+                font-size: 1rem;
             }
+
+            #searchInput {
+                padding-left: 40px;
+                background-size: 20px;
+            }
+
             button {
-                padding: 10px 20px;
-                background-color: #4caf50;
-                color: white;
+                padding: 10px 15px;
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
+                font-size: 1rem;
+                margin-top: 10px;
             }
-            button:hover {
-                background-color: #45a049;
+
+            #searchDiv {
+                position: relative;
             }
-            #bookResult {
-                margin-top: 30px;
-                font-size: 20px;
-                color: #1a237e;
+
+            #searchButton {
+                background-color: #34c759;
+                color: white;
             }
-            #autocomplete-list {
-                position: absolute;
-                border: 1px solid #888; /* darker border color */
-                border-bottom: none;
-                border-top: none;
-                z-index: 99;
-                top: 100%;
-                left: 0;
-                right: 0;
-                max-height: 200px; /* adjust as needed */
+
+            #searchButton:hover {
+                background-color: #2ab047;
+            }
+
+            #actionsToggle {
+                background-color: #e5e5e5;
+                color: #333;
+            }
+
+            #actionsToggle:hover {
+                background-color: #d4d4d4;
+            }
+
+            #actions {
+                display: none;
+                margin-top: 20px;
+            }
+
+            #actions label {
+                display: block;
+                margin-bottom: 10px;
+            }
+
+            .autocomplete-suggestions {
+                border: 1px solid #e5e5e5;
+                max-height: 150px;
                 overflow-y: auto;
-                direction: rtl;
-                text-align: right;
-                background-color: #f9f9f9; /* light gray background */
-                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* shadow effect */
+                background-color: #ffffff;
+                position: absolute;
+                z-index: 1000;
+                right: 0;
+                width: calc(100% - 60px);
             }
-            #autocomplete-list div {
+
+            .autocomplete-suggestion {
                 padding: 10px;
                 cursor: pointer;
-                background-color: #fff;
-                border-bottom: 1px solid #d4d4d4;
             }
-            #autocomplete-list div:hover {
+
+            .autocomplete-suggestion:hover {
                 background-color: #e9e9e9;
+            }
+            .autocomplete-results {
+                position: absolute;
+                z-index: 1;
+                background-color: white;
+                max-height: 200px;
+                overflow-y: auto;
+                width: 100%;
+                /* border: 1px solid #e5e5e5; */
+                box-sizing: border-box; /* To make sure width includes the border */
+            }
+
+            .autocomplete-results div {
+                padding: 5px;
+                cursor: pointer;
+            }
+
+            .autocomplete-results div:hover {
+                background-color: #f0f0f0;
             }
         </style>
     </head>
+
     <body>
-        <div class="container">
-            <h1>מצא את הספר שלך</h1>
-            <form id="searchForm">
-                <div style="position: relative">
+        <div id="mainContainer">
+            <div id="searchContainer">
+                <h1>חיפוש ספרים בספרייה</h1>
+                <div id="searchDiv">
                     <input
                         type="text"
-                        id="bookInput"
+                        id="searchInput"
+                        placeholder="חפש ספר..."
                         autocomplete="off"
-                        placeholder="הקלד את שם הספר כאן..."
                     />
-                    <div id="autocomplete-list"></div>
+                    <div
+                        id="autocompleteResults"
+                        class="autocomplete-results"
+                    ></div>
+                    <button id="searchButton" onclick="searchForBook()">
+                        חפש
+                    </button>
                 </div>
-                <br />
-                <button type="submit">חפש</button>
-            </form>
-            <p id="bookResult"></p>
+                <p id="searchResult"></p>
+                <div id="autocomplete"></div>
+            </div>
+
+            <div id="actionsContainer">
+                <button onclick="toggleActions()">פעולות</button>
+                <div id="actions" style="display: none">
+                    <div>
+                        <label for="bookName">שם הספר:</label>
+                        <input
+                            type="text"
+                            id="bookName"
+                            placeholder="שם הספר"
+                        />
+                    </div>
+                    <div>
+                        <label for="bookNewName"
+                            >שם הספר החדש (אם יש שינוי):</label
+                        >
+                        <input
+                            type="text"
+                            id="bookNewName"
+                            placeholder="שם הספר החדש"
+                        />
+                    </div>
+                    <div>
+                        <label for="bookShelf">המדף:</label>
+                        <input type="text" id="bookShelf" placeholder="המדף" />
+                    </div>
+                    <button onclick="addBook()">הוסף</button>
+                    <button onclick="removeBook()">הסר</button>
+                    <button onclick="updateBookLocation()">עדכן מיקום</button>
+                    <button onclick="updateBookName()">עדכן שם</button>
+                </div>
+            </div>
         </div>
 
         <script>
-            var libraryData = {
-                library: [
-                    { book: "תנך", shelf: "מדף 1" },
-                    { book: "תלמוד בבלי", shelf: "מדף 1" },
-                    { book: "משנה", shelf: "מדף 1" },
-                    { book: "תוספתא", shelf: "מדף 1" },
-                    { book: "מקראות גדולות", shelf: "מדף 1" },
-                    // more books for shelf 1...
+            let library = JSON.parse(localStorage.getItem("libraryData")) || [
+                { book: "תנך", shelf: "מדף 1" },
+                { book: "תלמוד בבלי", shelf: "מדף 1" },
+                { book: "משנה", shelf: "מדף 1" },
+                { book: "תוספתא", shelf: "מדף 1" },
+                { book: "מקראות גדולות", shelf: "מדף 1" },
+                // more books for shelf 1...
 
-                    { book: "שולחן ערוך", shelf: "מדף 2" },
-                    { book: "רמבם", shelf: "מדף 2" },
-                    { book: "מהרשא", shelf: "מדף 2" },
-                    { book: "מהרל", shelf: "מדף 2" },
-                    // more books for shelf 2...
+                { book: "שולחן ערוך", shelf: "מדף 2" },
+                { book: "רמבם", shelf: "מדף 2" },
+                { book: "מהרשא", shelf: "מדף 2" },
+                { book: "מהרל", shelf: "מדף 2" },
+                // more books for shelf 2...
 
-                    { book: "זוהר", shelf: "מדף 3" },
-                    { book: "עץ חיים", shelf: "מדף 3" },
-                    { book: "ברית מנוחה", shelf: "מדף 3" },
-                    // more books for shelf 3...
+                { book: "זוהר", shelf: "מדף 3" },
+                { book: "עץ חיים", shelf: "מדף 3" },
+                { book: "ברית מנוחה", shelf: "מדף 3" },
+                // more books for shelf 3...
 
-                    { book: "מדרש רבה", shelf: "מדף 4" },
-                    { book: "פרקי אבות", shelf: "מדף 4" },
-                    { book: "אור החיים", shelf: "מדף 4" },
-                    // more books for shelf 4...
+                { book: "מדרש רבה", shelf: "מדף 4" },
+                { book: "פרקי אבות", shelf: "מדף 4" },
+                { book: "אור החיים", shelf: "מדף 4" },
+                // more books for shelf 4...
 
-                    { book: "משנה תורה", shelf: "מדף 5" },
-                    { book: "תלמוד ירושלמי", shelf: "מדף 5" },
-                    { book: "אבן עזרא", shelf: "מדף 5" },
-                    // more books for shelf 5...
-                ],
-            };
+                { book: "משנה תורה", shelf: "מדף 5" },
+                { book: "תלמוד ירושלמי", shelf: "מדף 5" },
+                { book: "אבן עזרא", shelf: "מדף 5" },
+                // ... your other books
+            ];
 
-            const searchForm = document.getElementById("searchForm");
-            const bookInput = document.getElementById("bookInput");
-            const bookResult = document.getElementById("bookResult");
-            const autocompleteList =
-                document.getElementById("autocomplete-list");
+            function saveToLocalStorage() {
+                localStorage.setItem("libraryData", JSON.stringify(library));
+            }
 
-            searchForm.addEventListener("submit", handleFormSubmit);
-            bookInput.addEventListener("input", handleInputChange);
+            function loadFromLocalStorage() {
+                const savedData = localStorage.getItem("libraryData");
+                if (savedData) {
+                    return JSON.parse(savedData);
+                }
+                return library;
+            }
 
-            function handleFormSubmit(e) {
-                e.preventDefault();
-                const searchTerm = bookInput.value;
-                const result = searchForBook(searchTerm);
-                if (result) {
-                    bookResult.textContent = `הספר נמצא ב${result}`;
+            function searchForBook() {
+                const searchQuery = document
+                    .getElementById("searchInput")
+                    .value.toLowerCase();
+                let matchedBooks = [];
+
+                library.forEach((book) => {
+                    if (book.book.toLowerCase().includes(searchQuery)) {
+                        matchedBooks.push(book);
+                    }
+                });
+
+                const displayElem = document.getElementById("searchResult");
+                if (matchedBooks.length > 0) {
+                    displayElem.textContent = `הספר נמצא ב: ${matchedBooks[0].shelf}`;
                 } else {
-                    bookResult.textContent = "לא נמצאה התאמה";
+                    displayElem.textContent = "הספר לא נמצא בספרייה";
                 }
             }
 
-            function handleInputChange(e) {
-                const searchTerm = e.target.value;
-                if (searchTerm === "") {
-                    autocompleteList.innerHTML = "";
+            function toggleActions() {
+                const actions = document.getElementById("actions");
+                actions.style.display =
+                    actions.style.display === "none" ? "block" : "none";
+            }
+
+            function clearActionInputs() {
+                document.getElementById("bookName").value = "";
+                document.getElementById("bookShelf").value = "";
+                document.getElementById("bookNewName").value = "";
+            }
+
+            function addBook() {
+                const bookName = document.getElementById("bookName").value;
+                const shelf =
+                    "מדף " + document.getElementById("bookShelf").value; // Changed "Shelf " to "מדף "
+
+                if (!bookName || !document.getElementById("bookShelf").value) {
+                    alert("נא למלא את שם הספר ואת מספר המדף");
                     return;
                 }
-                const suggestions = searchForSuggestions(searchTerm);
-                renderSuggestions(suggestions);
+
+                const newBook = { book: bookName, shelf: shelf };
+                library.push(newBook);
+                saveToLocalStorage();
+                clearActionInputs();
             }
 
-            function searchForBook(bookTitle) {
-                const formattedTitle = bookTitle.toLowerCase();
-                const library = libraryData.library;
-                for (let i = 0; i < library.length; i++) {
-                    if (library[i].book.toLowerCase() === formattedTitle) {
-                        return library[i].shelf;
-                    }
+            function removeBook() {
+                const bookName = document.getElementById("bookName").value;
+
+                if (!bookName) {
+                    alert("נא למלא את שם הספר");
+                    return;
                 }
-                return null;
-            }
 
-            function searchForSuggestions(searchTerm) {
-                const formattedTerm = searchTerm.toLowerCase();
-                const library = libraryData.library;
-                return library.filter((item) =>
-                    item.book.toLowerCase().includes(formattedTerm)
+                const bookIndex = library.findIndex(
+                    (book) => book.book === bookName
                 );
+                if (bookIndex !== -1) {
+                    library.splice(bookIndex, 1);
+                } else {
+                    alert("לא נמצא ספר בשם המבוקש");
+                }
+
+                saveToLocalStorage();
+                clearActionInputs();
             }
 
-            function renderSuggestions(suggestions) {
-                autocompleteList.innerHTML = "";
-                suggestions.forEach((item) => {
+            function updateBookLocation() {
+                const bookName = document.getElementById("bookName").value;
+                const newShelf =
+                    "מדף " + document.getElementById("bookShelf").value; // Changed "Shelf " to "מדף "
+
+                if (!bookName || !document.getElementById("bookShelf").value) {
+                    alert("נא למלא את שם הספר ואת מספר המדף החדש");
+                    return;
+                }
+
+                const bookToUpdate = library.find(
+                    (book) => book.book === bookName
+                );
+                if (bookToUpdate) {
+                    bookToUpdate.shelf = newShelf;
+                } else {
+                    alert("לא נמצא ספר בשם המבוקש");
+                }
+
+                saveToLocalStorage();
+                clearActionInputs();
+            }
+
+            function updateBookName() {
+                const bookName = document.getElementById("bookName").value;
+                const newName = document.getElementById("bookNewName").value;
+
+                if (!bookName || !newName) {
+                    alert("נא למלא את השם הנוכחי של הספר ואת השם החדש");
+                    return;
+                }
+
+                const bookToUpdate = library.find(
+                    (book) => book.book === bookName
+                );
+                if (bookToUpdate) {
+                    bookToUpdate.book = newName;
+                } else {
+                    alert("לא נמצא ספר בשם המבוקש");
+                }
+
+                saveToLocalStorage();
+                clearActionInputs();
+            }
+
+            function autocomplete(
+                inputVal,
+                inputID = "searchInput",
+                resultsID = "autocompleteResults"
+            ) {
+                const matches = library.filter((book) =>
+                    book.book.includes(inputVal)
+                );
+                const autocompleteElem = document.getElementById(resultsID);
+
+                if (matches.length === 0 || inputVal === "") {
+                    autocompleteElem.style.display = "none";
+                    return;
+                }
+
+                autocompleteElem.style.display = "block";
+                autocompleteElem.innerHTML = "";
+
+                matches.forEach((match) => {
                     const div = document.createElement("div");
-                    div.textContent = item.book;
-                    div.addEventListener("click", () => {
-                        bookInput.value = item.book;
-                        autocompleteList.innerHTML = "";
-                    });
-                    autocompleteList.appendChild(div);
+                    div.textContent = match.book;
+                    div.onclick = () => {
+                        document.getElementById(inputID).value = match.book;
+                        autocompleteElem.style.display = "none";
+                    };
+                    autocompleteElem.appendChild(div);
                 });
             }
+
+            document
+                .getElementById("searchInput")
+                .addEventListener("input", function () {
+                    autocomplete(this.value);
+                });
+
+            document
+                .getElementById("bookName")
+                .addEventListener("input", function () {
+                    autocomplete(
+                        this.value,
+                        "bookName",
+                        "autocompleteResultsActions"
+                    );
+                });
         </script>
     </body>
 </html>
