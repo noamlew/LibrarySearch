@@ -7,7 +7,11 @@
             href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap"
             rel="stylesheet"
         />
-        <link rel="icon" href="https://icons.iconarchive.com/icons/ampeross/qetto-2/256/search-icon.png" type="image/x-icon" />
+        <link
+            rel="icon"
+            href="https://icons.iconarchive.com/icons/ampeross/qetto-2/256/search-icon.png"
+            type="image/x-icon"
+        />
         <title>מנוע חיפוש לספריה</title>
         <style>
             body {
@@ -18,6 +22,21 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+            }
+
+            @media only screen and (max-width: 600px) {
+                body {
+                    width: 100%;
+                    margin: 0;
+                    padding: 10px;
+                    box-sizing: border-box;
+                }
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
             }
 
             #container {
@@ -62,6 +81,10 @@
             }
 
             #searchDiv {
+                position: relative;
+            }
+
+            #bookNameDiv {
                 position: relative;
             }
 
@@ -160,13 +183,17 @@
             <div id="actionsContainer">
                 <button onclick="toggleActions()">פעולות</button>
                 <div id="actions" style="display: none">
-                    <div>
+                    <div id="bookNameDiv">
                         <label for="bookName">שם הספר:</label>
                         <input
                             type="text"
                             id="bookName"
                             placeholder="שם הספר"
                         />
+                        <div
+                            id="autocompleteResultsActions"
+                            class="autocomplete-results"
+                        ></div>
                     </div>
                     <div>
                         <label for="bookNewName"
@@ -179,8 +206,8 @@
                         />
                     </div>
                     <div>
-                        <label for="bookShelf">המדף:</label>
-                        <input type="text" id="bookShelf" placeholder="המדף" />
+                        <label for="bookShelf">מיקום:</label>
+                        <input type="text" id="bookShelf" placeholder="מיקום" />
                     </div>
                     <button onclick="addBook()">הוסף</button>
                     <button onclick="removeBook()">הסר</button>
@@ -237,19 +264,16 @@
                 const searchQuery = document
                     .getElementById("searchInput")
                     .value.toLowerCase();
-                let matchedBooks = [];
 
-                library.forEach((book) => {
-                    if (book.book.toLowerCase().includes(searchQuery)) {
-                        matchedBooks.push(book);
-                    }
-                });
+                const matchedBook = library.find((book) =>
+                    book.book.toLowerCase().includes(searchQuery)
+                );
 
                 const displayElem = document.getElementById("searchResult");
-                if (matchedBooks.length > 0) {
-                    displayElem.textContent = `הספר נמצא ב: ${matchedBooks[0].shelf}`;
+                if (matchedBook) {
+                    displayElem.textContent = `הספר נמצא ב: ${matchedBook.shelf}`;
                 } else {
-                    displayElem.textContent = "הספר לא נמצא בספרייה";
+                    displayElem.textContent = "הספר לא נמצא בספריה";
                 }
             }
 
@@ -267,8 +291,7 @@
 
             function addBook() {
                 const bookName = document.getElementById("bookName").value;
-                const shelf =
-                    "מדף " + document.getElementById("bookShelf").value; // Changed "Shelf " to "מדף "
+                const shelf = document.getElementById("bookShelf").value; // Changed "Shelf " to "מדף "
 
                 if (!bookName || !document.getElementById("bookShelf").value) {
                     alert("נא למלא את שם הספר ואת מספר המדף");
@@ -304,8 +327,7 @@
 
             function updateBookLocation() {
                 const bookName = document.getElementById("bookName").value;
-                const newShelf =
-                    "מדף " + document.getElementById("bookShelf").value; // Changed "Shelf " to "מדף "
+                const newShelf = document.getElementById("bookShelf").value; // Changed "Shelf " to "מדף "
 
                 if (!bookName || !document.getElementById("bookShelf").value) {
                     alert("נא למלא את שם הספר ואת מספר המדף החדש");
@@ -371,6 +393,19 @@
                     div.onclick = () => {
                         document.getElementById(inputID).value = match.book;
                         autocompleteElem.style.display = "none";
+                        if (resultsID === "autocompleteResultsActions") {
+                            const searchQuery = document
+                                .getElementById("bookName")
+                                .value.toLowerCase();
+                            const matchedBook = library.find((book) =>
+                                book.book.toLowerCase().includes(searchQuery)
+                            );
+
+                            if (matchedBook) {
+                                document.getElementById("bookShelf").value =
+                                    matchedBook.shelf;
+                            }
+                        }
                     };
                     autocompleteElem.appendChild(div);
                 });
